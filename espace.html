@@ -1,0 +1,60 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Espace client — Angel Coaching</title><meta name="robots" content="noindex"><link rel="stylesheet" href="style.css"></head><body>
+<header><b><a href="index.html" style="text-decoration:none;color:inherit">Angel Coaching</a></b><nav><button class="btn alt" id="logout" hidden>Déconnexion</button></nav></header>
+<main class="wrap"><section>
+<div id="msg" class="msg" hidden></div>
+<div id="auth" class="card" style="max-width:420px;margin:auto"><h2>Connexion</h2>
+<label>E-mail<input id="email" type="email" autocomplete="email"></label>
+<label>Mot de passe<input id="pwd" type="password" autocomplete="current-password" minlength="8"></label>
+<button class="btn" id="login">Se connecter</button> <button class="btn alt" id="signup">Créer un compte</button>
+<p><a href="#" id="forgot" class="mut">Mot de passe oublié ?</a></p></div>
+<div id="sign" class="card" style="max-width:560px;margin:auto" hidden><h2>Contrat de confiance et de confidentialité</h2>
+<p>Avant d'accéder à votre espace, merci de lire puis signer le <a href="contrat.html" target="_blank">contrat</a>, que nous avons vu ensemble lors du coffee coach.</p>
+<label><input type="checkbox" id="signok">J'ai lu et j'accepte le contrat</label><br><br>
+<label><input type="checkbox" id="signrep">Je signe en tant que représentant légal d'un mineur</label>
+<label>Nom complet (vaut signature)<input id="signnom" autocomplete="name"></label><button class="btn" id="signbtn">Signer</button></div>
+<div id="app" hidden>
+<h2>Mes programmes</h2><div id="progs" class="grid"></div>
+<h2 style="margin-top:40px">Mon suivi</h2>
+<div class="card"><label>Date<input id="d" type="date"></label><label>Poids (kg, optionnel)<input id="p" type="number" step="0.1"></label>
+<label>Note / ressenti<textarea id="n" rows="3"></textarea></label><button class="btn" id="add">Enregistrer</button></div>
+<table style="margin-top:20px"><thead><tr><th>Date</th><th>Poids</th><th>Note</th></tr></thead><tbody id="rows"></tbody></table>
+</div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const CONTRAT_V="v1";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const say=(t)=>{$("msg").textContent=t;$("msg").hidden=!t};
+async function render(session){
+  $("auth").hidden=!!session;$("logout").hidden=!session;$("app").hidden=true;$("sign").hidden=true;
+  if(!session)return;
+  const {data:c}=await sb.from("contrats_signes").select("id").eq("version",CONTRAT_V).limit(1);
+  if(!c||!c.length){$("sign").hidden=false;return}
+  $("app").hidden=false;$("d").value=new Date().toISOString().slice(0,10);load();
+}
+$("signbtn").onclick=async()=>{const nom=$("signnom").value.trim();
+  if(nom.length<3||!$("signok").checked)return say("Cochez la case et indiquez votre nom complet.");
+  const {data:{user}}=await sb.auth.getUser();
+  const {error}=await sb.from("contrats_signes").insert({user_id:user.id,version:CONTRAT_V,nom_signataire:nom,representant_legal:$("signrep").checked});
+  if(error)return say(error.message);say("");render((await sb.auth.getSession()).data.session)};
+async function load(){
+  const {data:s}=await sb.from("suivis").select("*").order("date",{ascending:false});
+  $("rows").innerHTML=(s||[]).map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.poids)}</td><td>${esc(r.note)}</td></tr>`).join("")||`<tr><td colspan=3 class="mut">Aucune entrée.</td></tr>`;
+  const {data:p}=await sb.from("programmes").select("*").order("created_at",{ascending:false});
+  $("progs").innerHTML=(p||[]).map(r=>`<div class="card"><b>${esc(r.titre)}</b><p class="mut">${new Date(r.created_at).toLocaleDateString("fr-FR")}</p><button class="btn dl" data-path="${esc(r.file_path)}">Télécharger</button></div>`).join("")||`<p class="mut">Aucun programme pour le moment.</p>`;
+}
+$("progs").onclick=async e=>{const b=e.target.closest(".dl");if(!b)return;
+  const {data,error}=await sb.storage.from("programmes").createSignedUrl(b.dataset.path,60);
+  error?say(error.message):window.open(data.signedUrl,"_blank")};
+$("login").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("email").value,password:$("pwd").value});say(error?"Identifiants incorrects.":"")};
+$("signup").onclick=async()=>{const {error}=await sb.auth.signUp({email:$("email").value,password:$("pwd").value,options:{emailRedirectTo:location.href}});say(error?error.message:"Compte créé : vérifiez votre e-mail pour confirmer.")};
+$("forgot").onclick=async e=>{e.preventDefault();if(!$("email").value)return say("Saisissez votre e-mail ci-dessus.");
+  await sb.auth.resetPasswordForEmail($("email").value,{redirectTo:location.href});say("Si le compte existe, un e-mail vient d'être envoyé.")};
+$("logout").onclick=()=>sb.auth.signOut();
+$("add").onclick=async()=>{const {data:{user}}=await sb.auth.getUser();
+  const {error}=await sb.from("suivis").insert({user_id:user.id,date:$("d").value,poids:$("p").value||null,note:$("n").value});
+  if(error)return say(error.message);$("p").value=$("n").value="";say("");load()};
+sb.auth.onAuthStateChange((_e,s)=>render(s));sb.auth.getSession().then(({data})=>render(data.session));
+</script></body></html>
