@@ -18,3 +18,15 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 .msg{padding:10px 14px;border-radius:8px;background:#fff6e5;border:1px solid #f0dcae;margin-bottom:14px}footer{padding:30px 6vw;background:#55b9bf;color:#fff;text-align:center}footer a{color:#fff}
 .contract h3{font:700 1rem "Helvetica Neue",sans-serif;margin:22px 0 4px}.sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px}
 @media print{header,footer,.noprint{display:none!important}body{font-size:12pt}}
+/* v2 : visuels */
+.mist{background:url(images/montagnes.svg) center bottom/cover no-repeat,var(--mist)}
+.hero{padding:140px 0 170px}.hero h1{font-size:clamp(2.6rem,7vw,4.4rem)}.hero p{font-size:1.15rem;max-width:560px}
+h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);margin-top:8px}
+.ph{position:relative;background:var(--img,none) center/cover no-repeat,var(--fb,none) center/cover no-repeat,linear-gradient(135deg,#9fd6d3,#e5f3ee)}
+.lbl{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);background:#fff;border:1px solid var(--fg);padding:3px 14px;font:italic .82rem Georgia,serif;white-space:nowrap}
+.svc .ph{height:240px}.svc .in{padding-top:34px}.card.svc{transition:.2s}.card.svc:hover{transform:translateY(-4px);box-shadow:0 14px 30px #2f8f9540}
+.cup{--img:url(images/coffee.jpg);aspect-ratio:1;background:var(--img,none) center/contain no-repeat,var(--fb,url(images/coffee.svg)) center/contain no-repeat}
+.steps div{box-shadow:0 4px 14px #2f8f9526}
+/* v3 : fond d'accueil Cloudinary */
+.herobg{background:url(https://res.cloudinary.com/dlo1bbmlf/image/upload/f_auto,q_auto,w_1920/v1792512725/fond1_pbdutp.jpg) center/cover no-repeat,url(images/montagnes.svg) center bottom/cover no-repeat,var(--mist)}
+.hero h1,.hero p{text-shadow:0 1px 14px #ffffffb0}
