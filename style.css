@@ -30,3 +30,9 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 /* v3 : fond d'accueil Cloudinary */
 .herobg{background:url(https://res.cloudinary.com/dlo1bbmlf/image/upload/f_auto,q_auto,w_1920/v1792512725/fond1_pbdutp.jpg) center/cover no-repeat,url(images/montagnes.svg) center bottom/cover no-repeat,var(--mist)}
 .hero h1,.hero p{text-shadow:0 1px 14px #ffffffb0}
+/* v4 : en-tête lisible, image complète (silhouettes non coupées) */
+.herobg{background:linear-gradient(0deg,rgba(8,20,26,.8) 0,rgba(8,20,26,.35) 40%,rgba(8,20,26,0) 65%),linear-gradient(90deg,rgba(8,20,26,.55) 0,rgba(8,20,26,0) 55%),url(https://res.cloudinary.com/dlo1bbmlf/image/upload/f_auto,q_auto,w_1920/v1792512725/fond1_pbdutp.jpg) 65% top/cover no-repeat,url(images/montagnes.svg) center bottom/cover no-repeat,var(--mist);min-height:min(88vh,800px);display:flex;align-items:flex-end;color:#fff}
+.herobg .hero{width:100%;max-width:1200px;padding:200px 6vw 70px}
+.herobg .hero h1{color:#fff;max-width:520px;font-size:clamp(2.4rem,5.5vw,4rem);text-shadow:0 2px 18px rgba(0,0,0,.55)}
+.herobg .hero p{color:#f2f8f6;max-width:460px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.herobg .hero p.mut{color:#cfe8e3}
