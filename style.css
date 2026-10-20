@@ -42,3 +42,11 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 @media(max-width:960px){#services .grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){#services .grid{grid-template-columns:1fr}}
 .svc .in .btn{margin-top:auto}
+/* v6 : dashboards */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:26px}.tabs button{background:none;border:0;padding:10px 14px;font:inherit;cursor:pointer;color:var(--mut)}.tabs button.on{color:var(--acc);border-bottom:2px solid var(--acc);font-weight:600}
+.bar{height:12px;background:var(--line);border-radius:8px;overflow:hidden;margin:4px 0 14px}.bar i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.row span{flex:1}.row input[type=checkbox]{width:20px;height:20px;margin:0}
+.two{display:grid;gap:24px;grid-template-columns:1fr 1fr}@media(max-width:760px){.two{grid-template-columns:1fr}}
+.admin{display:grid;gap:24px;grid-template-columns:240px 1fr;align-items:start}@media(max-width:800px){.admin{grid-template-columns:1fr}}
+.cl{display:block;width:100%;text-align:left;margin-bottom:8px}.drop{border:2px dashed var(--acc);border-radius:10px;padding:22px;text-align:center;color:var(--mut);margin:10px 0}
+.x{background:none;border:0;color:#b3402f;cursor:pointer;font-size:1.1rem}
