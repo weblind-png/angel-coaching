@@ -1,1 +1,41 @@
-
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Angel Coaching</title><meta name="robots" content="noindex"><link rel="stylesheet" href="style.css"></head><body>
+<header><b>Angel Coaching · Admin</b><nav><button class="btn alt" id="logout" hidden>Déconnexion</button></nav></header>
+<main class="wrap"><section><div id="msg" class="msg" hidden></div>
+<div id="auth" class="card" style="max-width:420px;margin:auto"><h2>Connexion coach</h2><label>E-mail<input id="email" type="email"></label><label>Mot de passe<input id="pwd" type="password"></label><button class="btn" id="login">Se connecter</button></div>
+<div id="app" class="admin" hidden><div class="card"><h3>Clients</h3><div id="list"></div></div><div id="detail"><p class="mut">Sélectionnez un client.</p></div></div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="config.js"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const say=t=>{$("msg").textContent=t;$("msg").hidden=!t};let C=null,DOCS=[];
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const run=async fn=>{try{await fn()}catch(e){say("Erreur : "+e.message)}};
+async function render(session){$("auth").hidden=!!session;$("logout").hidden=!session;$("app").hidden=true;if(!session)return;
+ const {data}=await sb.rpc("coach_is_admin");if(!data){say("Accès réservé au coach.");return}say("");$("app").hidden=false;list()}
+async function list(){const {data}=await sb.from("profils").select("*").order("cree_le",{ascending:false});
+ $("list").innerHTML=(data||[]).map(p=>`<button class="btn alt cl" data-id="${p.user_id}">${esc([p.prenom,p.nom].filter(Boolean).join(" ")||p.email)}</button>`).join("")||'<p class="mut">Aucun client.</p>'}
+async function open(id){C=id;const q=t=>sb.from(t).select("*").eq("user_id",id);
+ const [p,i,s,d,k]=await Promise.all([q("profils").maybeSingle(),q("items").order("created_at"),q("suivis").order("date"),q("programmes").order("created_at",{ascending:false}),q("contrats_signes")]);
+ const P=p.data||{},K=(k.data||[])[0];DOCS=d.data||[];
+ $("detail").innerHTML=`<div class="card"><h2>${esc([P.prenom,P.nom].filter(Boolean).join(" ")||P.email)}</h2><p class="mut">${esc(P.email)} · ${esc(P.telephone)} · né(e) le ${esc(P.naissance)}<br>Taille ${esc(P.taille_cm)} cm · départ ${esc(P.poids_depart)} kg · visé ${esc(P.poids_objectif)} kg<br>${esc(P.notes)}</p><p>Contrat : ${K?`signé le ${new Date(K.signe_le).toLocaleDateString("fr-FR")} (${esc(K.nom_signataire)})`:"<b>non signé</b>"}</p></div>
+ <div class="card" style="margin-top:20px"><h3>Étapes et actions</h3>${(i.data||[]).map(x=>`<div class="row"><span>${x.fait?"✅":"⬜"} ${esc(x.titre)} <small class="mut">(${x.type==="etape"?x.points+" pts":"action"})</small></span><button class="x" data-di="${x.id}">✕</button></div>`).join("")||'<p class="mut">Aucune.</p>'}
+ <div class="two" style="margin-top:14px"><label>Type<select id="it"><option value="etape">Étape (objectif)</option><option value="action">Action</option></select></label><label>Points (étapes)<input id="ip" type="number" value="10"></label></div><label>Intitulé<input id="ititre"></label><button class="btn" id="addi">Ajouter</button></div>
+ <div class="card" style="margin-top:20px"><h3>Documents</h3>${DOCS.map(x=>`<div class="row"><span>${esc(x.titre)} <small class="mut">(${x.categorie})</small></span><button class="x" data-dd="${x.id}">✕</button></div>`).join("")||'<p class="mut">Aucun.</p>'}
+ <div class="drop" id="drop">Glissez un fichier ici ou <input id="file" type="file"></div><div class="two"><label>Titre<input id="dt"></label><label>Catégorie<select id="cat"><option value="programme">Programme / document</option><option value="diete">Diète</option></select></label></div><button class="btn" id="up">Envoyer</button></div>
+ <div class="card" style="margin-top:20px"><h3>Pesées</h3><table><tbody>${(s.data||[]).map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.poids)} kg</td><td>${esc(r.note)}</td></tr>`).join("")||'<tr><td class="mut">Aucune pesée.</td></tr>'}</tbody></table></div>`}
+$("list").onclick=e=>{const b=e.target.closest(".cl");if(b)run(()=>open(b.dataset.id))};
+$("detail").ondragover=e=>e.preventDefault();
+$("detail").ondrop=e=>{e.preventDefault();if($("file")&&e.dataTransfer.files.length)$("file").files=e.dataTransfer.files};
+$("detail").onclick=e=>run(async()=>{const t=e.target;
+ if(t.id==="addi"){const ti=$("ititre").value.trim();if(!ti)return say("Indiquez un intitulé.");
+  const {error}=await sb.from("items").insert({user_id:C,type:$("it").value,titre:ti,points:+$("ip").value||0});if(error)return say(error.message);say("");open(C)}
+ if(t.dataset.di){await sb.from("items").delete().eq("id",t.dataset.di);open(C)}
+ if(t.dataset.dd){const d=DOCS.find(x=>x.id===t.dataset.dd);await sb.storage.from("programmes").remove([d.file_path]);await sb.from("programmes").delete().eq("id",d.id);open(C)}
+ if(t.id==="up"){const f=$("file").files[0];if(!f)return say("Choisissez un fichier.");const path=`${C}/${Date.now()}-${f.name.replace(/[^\w.\-]/g,"_")}`;
+  const u=await sb.storage.from("programmes").upload(path,f);if(u.error)return say(u.error.message);
+  const r=await sb.from("programmes").insert({user_id:C,titre:$("dt").value.trim()||f.name,file_path:path,categorie:$("cat").value});if(r.error)return say(r.error.message);say("");open(C)}});
+$("login").onclick=()=>run(async()=>{const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pwd").value});say(error?"Identifiants incorrects.":"")});
+$("logout").onclick=()=>sb.auth.signOut();
+sb.auth.onAuthStateChange((_e,s)=>run(()=>render(s)));run(async()=>render((await sb.auth.getSession()).data.session));
+</script></body></html>
