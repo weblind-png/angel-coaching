@@ -36,3 +36,9 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 .herobg .hero h1{color:#fff;max-width:520px;font-size:clamp(2.4rem,5.5vw,4rem);text-shadow:0 2px 18px rgba(0,0,0,.55)}
 .herobg .hero p{color:#f2f8f6;max-width:460px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
 .herobg .hero p.mut{color:#cfe8e3}
+/* v5 : 4 formules sur une seule ligne */
+.wrap{max-width:1120px}
+#services .grid{grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){#services .grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){#services .grid{grid-template-columns:1fr}}
+.svc .in .btn{margin-top:auto}
