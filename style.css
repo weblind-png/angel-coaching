@@ -38,7 +38,7 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 .herobg .hero p.mut{color:#cfe8e3}
 /* v5 : 4 formules sur une seule ligne */
 .wrap{max-width:1120px}
-#services .grid{grid-template-columns:repeat(4,1fr)}
+#services .grid{grid-template-columns:repeat(3,1fr)}
 @media(max-width:960px){#services .grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){#services .grid{grid-template-columns:1fr}}
 .svc .in .btn{margin-top:auto}
@@ -50,4 +50,5 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 .admin{display:grid;gap:24px;grid-template-columns:240px 1fr;align-items:start}@media(max-width:800px){.admin{grid-template-columns:1fr}}
 .cl{display:block;width:100%;text-align:left;margin-bottom:8px}.drop{border:2px dashed var(--acc);border-radius:10px;padding:22px;text-align:center;color:var(--mut);margin:10px 0}
 .x{background:none;border:0;color:#b3402f;cursor:pointer;font-size:1.1rem}
+/* v7 : un élément "hidden" doit toujours rester caché (dashboards) */
 [hidden]{display:none!important}
