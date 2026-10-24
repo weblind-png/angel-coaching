@@ -16,7 +16,7 @@
 <label><input type="checkbox" id="signrep">Je signe en tant que représentant légal d'un mineur</label>
 <label>Nom complet (vaut signature)<input id="signnom" autocomplete="name"></label><button class="btn" id="signbtn">Signer</button></div>
 <div id="app" hidden>
-<div class="tabs" id="tabs"><button data-t="fiche">Ma fiche</button><button data-t="objectifs">Mes objectifs</button><button data-t="actions">Mes actions</button><button data-t="diete">Ma diète</button><button data-t="docs">Mes documents</button><button data-t="contrat">Mon contrat</button></div>
+<div class="tabs" id="tabs"><button data-t="fiche">Ma fiche</button><button data-t="objectifs">Mes objectifs</button><button data-t="actions">Mes actions</button><button data-t="diete">Mon alimentation</button><button data-t="docs">Mes documents</button><button data-t="contrat">Mon contrat</button></div>
 <div class="tab" id="t-fiche"></div><div class="tab" id="t-objectifs"></div><div class="tab" id="t-actions"></div><div class="tab" id="t-diete"></div><div class="tab" id="t-docs"></div><div class="tab" id="t-contrat"></div>
 </div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -45,7 +45,7 @@ function draw(){
  try{Silhouette.mount($("sil"),{h:+P.taille_cm||175,w0:w0||70,w:last||w0||70,sexe:P.sexe,naissance:P.naissance})}catch(e){}
  const A=I.filter(i=>i.type==="action");
  $("t-actions").innerHTML=`<h2>Mes actions</h2>${A.length?A.map(chk).join(""):'<p class="mut">Aucune action pour le moment.</p>'}`;
- $("t-diete").innerHTML=`<h2>Ma diète</h2>${docs("diete","Votre plan alimentaire apparaîtra ici.")}`;
+ $("t-diete").innerHTML=`<h2>Mon alimentation</h2>${docs("diete","Vos conseils alimentaires apparaîtront ici.")}`;
  $("t-docs").innerHTML=`<h2>Mes documents</h2>${docs("programme","Aucun document pour le moment.")}`;
  $("t-contrat").innerHTML=`<h2>Mon contrat</h2><div class="card">${K?`Contrat de confiance et de confidentialité signé le <b>${new Date(K.signe_le).toLocaleDateString("fr-FR")}</b> par <b>${esc(K.nom_signataire)}</b>.`:"Contrat non signé."}<p><a href="contrat.html" target="_blank">Relire le contrat</a></p></div>`;
 }
