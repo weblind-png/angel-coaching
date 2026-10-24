@@ -20,7 +20,7 @@
 <div class="tab" id="t-fiche"></div><div class="tab" id="t-objectifs"></div><div class="tab" id="t-actions"></div><div class="tab" id="t-diete"></div><div class="tab" id="t-docs"></div><div class="tab" id="t-contrat"></div>
 </div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="silhouette.js"></script>
+<script src="silhouette.js"></script>
 <script src="config.js"></script>
 <script>
 const CV="v1";let recovery=location.hash.includes("type=recovery"),U,P={},I=[],S=[],D=[],K;
@@ -28,21 +28,21 @@ const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,
 const say=t=>{$("msg").textContent=t;$("msg").hidden=!t};
 if(String(SUPABASE_URL).includes("VOTRE"))say("config.js n'est pas encore renseigné (URL et clé Supabase).");
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const F=[["prenom","Prénom","text"],["nom","Nom","text"],["telephone","Téléphone","tel"],["naissance","Date de naissance","date"],["taille_cm","Taille (cm)","number"],["poids_depart","Poids de départ (kg)","number"],["poids_objectif","Poids visé (kg)","number"]];
+const F=[["prenom","Prénom","text"],["nom","Nom","text"],["sexe","Sexe","select"],["telephone","Téléphone","tel"],["naissance","Date de naissance","date"],["taille_cm","Taille (cm)","number"],["poids_depart","Poids de départ (kg)","number"],["poids_objectif","Poids visé (kg)","number"]];
 const body=(f,st)=>{const c=100,a=x=>x*f;return `<g ${st}><circle cx="100" cy="36" r="21"/><path d="M${c-a(42)} 88Q100 74 ${c+a(42)} 88L${c+a(35)} 198Q${c+a(46)} 224 ${c+a(44)} 236H${c-a(44)}Q${c-a(46)} 224 ${c-a(35)} 198Z"/><rect x="${c-a(60)}" y="92" width="${a(15)}" height="124" rx="8"/><rect x="${c+a(45)}" y="92" width="${a(15)}" height="124" rx="8"/><rect x="${c-a(44)}" y="232" width="${a(41)}" height="172" rx="14"/><rect x="${c+a(3)}" y="232" width="${a(41)}" height="172" rx="14"/></g>`};
 const chk=i=>`<label class="row"><input type="checkbox" data-id="${i.id}" ${i.fait?"checked":""}><span>${esc(i.titre)}</span>${i.type==="etape"?`<b>${i.points} pts</b>`:""}</label>`;
 const docs=(cat,vide)=>{const L=D.filter(d=>d.categorie===cat);return L.length?`<div class="grid">${L.map(d=>`<div class="card"><b>${esc(d.titre)}</b><p class="mut">${new Date(d.created_at).toLocaleDateString("fr-FR")}</p><button class="btn dl" data-path="${esc(d.file_path)}">Télécharger</button></div>`).join("")}</div>`:`<p class="mut">${vide}</p>`};
 function tab(t){document.querySelectorAll(".tab").forEach(x=>x.hidden=x.id!=="t-"+t);document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
 function draw(){
- $("t-fiche").innerHTML=`<h2>Ma fiche de départ</h2><p class="mut">À remplir une fois : c'est le point de départ de votre suivi.</p><div class="card"><div class="two">${F.map(([k,l,t])=>`<label>${l}<input id="f_${k}" type="${t}" ${t==="number"?'step="0.1"':""} value="${esc(P[k])}"></label>`).join("")}</div><label>Informations utiles (santé, allergies, contraintes…)<textarea id="f_notes" rows="3">${esc(P.notes)}</textarea></label><button class="btn" id="savef">Enregistrer</button></div>`;
+ $("t-fiche").innerHTML=`<h2>Ma fiche de départ</h2><p class="mut">À remplir une fois : c'est le point de départ de votre suivi.</p><div class="card"><div class="two">${F.map(([k,l,t])=>t==="select"?`<label>${l}<select id="f_${k}"><option value="">—</option><option value="homme" ${P[k]==="homme"?"selected":""}>Homme</option><option value="femme" ${P[k]==="femme"?"selected":""}>Femme</option></select></label>`:`<label>${l}<input id="f_${k}" type="${t}" ${t==="number"?'step="0.1"':""} value="${esc(P[k])}"></label>`).join("")}</div><label>Informations utiles (santé, allergies, contraintes…)<textarea id="f_notes" rows="3">${esc(P.notes)}</textarea></label><button class="btn" id="savef">Enregistrer</button></div>`;
  const w0=+P.poids_depart||0,wt=+P.poids_objectif||0,W=S.filter(x=>x.poids!=null),last=W.length?+W[W.length-1].poids:w0;
  const wp=w0&&wt&&w0!==wt?Math.max(0,Math.min(1,(last-w0)/(wt-w0)))*100:0;
  const E=I.filter(i=>i.type==="etape"),tot=E.reduce((a,i)=>a+i.points,0),dn=E.filter(i=>i.fait).reduce((a,i)=>a+i.points,0),sp=tot?dn/tot*100:0;
  const f=w0?Math.max(.65,Math.min(1.4,1+(last/w0-1)*2.2)):1;
- $("t-objectifs").innerHTML=`<h2>Mes objectifs</h2>${w0?"":'<p class="msg">Renseignez d\'abord votre fiche de départ (onglet « Ma fiche »).</p>'}<div class="two"><div class="card" style="text-align:center"><div id="sil" style="width:100%;max-width:340px;margin:auto;border-radius:10px;overflow:hidden;background:#0e1a23"></div><p class="mut">Cyan : aujourd'hui · Bleu : départ<br>Faites glisser pour faire tourner</p></div></div>
+ $("t-objectifs").innerHTML=`<h2>Mes objectifs</h2>${w0?"":'<p class="msg">Renseignez d\'abord votre fiche de départ (onglet « Ma fiche »).</p>'}<div class="two"><div class="card" style="text-align:center"><div id="sil"></div></div></div>
  <h3 style="margin-top:26px">Ma pesée</h3><div class="card"><div class="two"><label>Date<input id="pd" type="date" value="${new Date().toISOString().slice(0,10)}"></label><label>Poids (kg)<input id="pp" type="number" step="0.1"></label></div><label>Note / ressenti<textarea id="pn" rows="2"></textarea></label><button class="btn" id="padd">Enregistrer</button></div>
  <table style="margin-top:16px"><thead><tr><th>Date</th><th>Poids</th><th>Note</th></tr></thead><tbody>${[...S].reverse().map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.poids)}</td><td>${esc(r.note)}</td></tr>`).join("")||'<tr><td colspan="3" class="mut">Aucune pesée.</td></tr>'}</tbody></table>`;
- try{Silhouette.mount($("sil"),{h:+P.taille_cm||175,w0:w0||70,w:last||w0||70})}catch(e){}
+ try{Silhouette.mount($("sil"),{h:+P.taille_cm||175,w0:w0||70,w:last||w0||70,sexe:P.sexe,naissance:P.naissance})}catch(e){}
  const A=I.filter(i=>i.type==="action");
  $("t-actions").innerHTML=`<h2>Mes actions</h2>${A.length?A.map(chk).join(""):'<p class="mut">Aucune action pour le moment.</p>'}`;
  $("t-diete").innerHTML=`<h2>Ma diète</h2>${docs("diete","Votre plan alimentaire apparaîtra ici.")}`;
