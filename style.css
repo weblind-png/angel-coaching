@@ -52,3 +52,5 @@ h2:after{content:"";display:block;width:44px;height:2px;background:var(--acc);ma
 .x{background:none;border:0;color:#b3402f;cursor:pointer;font-size:1.1rem}
 /* v7 : un élément "hidden" doit toujours rester caché (dashboards) */
 [hidden]{display:none!important}
+/* v8 : pas de suivi du poids pour les mineurs */
+#app[data-minor="1"] .wt{display:none}
